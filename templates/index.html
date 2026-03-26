@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parking Management Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen text-align-center">
+    <header class="bg-white border-b border-gray-200 text-center">
+        <div class="max-w-7xl mx-auto px-4 py-6">
+            <h1 class="text-2xl font-semibold text-gray-900">Parking Management Dashboard</h1>
+            <p class="text-sm text-gray-500 mt-1">Real-time parking monitoring system</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 space-y-8">
+        <!-- Vehicle Logs Section -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200 text-center">
+                <h2 class="text-lg font-medium text-gray-900">Vehicle Logs</h2>
+                <p class="text-sm text-gray-500 mt-1">Track vehicle entry and exit records</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gray-50 text-center">
+                            <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Plate Number</th>
+                            <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Entry</th>
+                            <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Exit</th>
+                            <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Fee</th>
+                            <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vehicle-table" class="bg-white divide-y divide-gray-200"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Incident Logs Section -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200 text-center">
+                <h2 class="text-lg font-medium text-gray-900">Incident Logs</h2>
+                <p class="text-sm text-gray-500 mt-1">Monitor parking incidents and violations</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gray-50 text-center">
+                            <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Plate Number</th>
+                            <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+                            <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Gate</th>
+                            <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Incident</th>
+                        </tr>
+                    </thead>
+                    <tbody id="incident-table" class="bg-white divide-y divide-gray-200"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        async function fetchLogs() {
+            try {
+                const vehicleResponse = await fetch('http://localhost:5000/api/vehicle-logs')
+                if (!vehicleResponse.ok) throw new Error('Failed to fetch vehicle logs')
+                const vehicleLogs = await vehicleResponse.json()
+                const incidentResponse = await fetch('http://localhost:5000/api/incident-logs')
+                if (!incidentResponse.ok) throw new Error('Failed to fetch incident logs')
+                const incidentLogs = await incidentResponse.json()
+
+                const vehicleTable = document.getElementById('vehicle-table')
+                vehicleTable.innerHTML = vehicleLogs.map(log => `
+                    <tr class="hover:bg-gray-50 text-center">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${log.plate_number}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${log.entry_timestamp || '-'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${log.exit_timestamp || '-'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${log.fee !== null ? `${log.fee} RWF` : '-'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                log.payment_status === 'cleared' ? 'bg-green-100 text-green-800' : 
+                                log.payment_status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+                                'bg-gray-100 text-gray-800'
+                            }">
+                                ${log.payment_status}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('')
+
+                const incidentTable = document.getElementById('incident-table')
+                incidentTable.innerHTML = incidentLogs.map(log => `
+                    <tr class="hover:bg-gray-50 text-center">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${log.plate_number || '-'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${log.timestamp}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${log.gate_location || '-'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                log.incident_type === 'unauthorized_exit' ? 'bg-red-100 text-red-800' : 
+                                'bg-yellow-100 text-yellow-800'
+                            }">
+                                ${log.incident_type}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('')
+            } catch (error) {
+                console.error('Error fetching logs:', error)
+                const errorMessage = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-sm">
+                            <div class="text-gray-500 text-center">
+                                <span>Error loading logs. Please try again later.</span>
+                            </div>
+                        </td>
+                    </tr>`
+                document.getElementById('vehicle-table').innerHTML = errorMessage
+                document.getElementById('incident-table').innerHTML = errorMessage
+            }
+        }
+
+        // Fetch logs on load and every 5 seconds
+        fetchLogs()
+        setInterval(fetchLogs, 5000)
+    </script>
+</body>
+</html>

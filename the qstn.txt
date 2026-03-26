@@ -1,0 +1,41 @@
+Description:
+Automatic Number Plate Recognition (ANRP) and proximity sensing for an automated parking management system.
+
+Features:
+1. vehicle registration: the system records the vehicle's license plate using an outward-facing camera at the gate and timestamps the entry.
+2. RFID-based payment: parking costs 500RWF per hour, with any duration under an hour rounded up.
+3. exit authorization: only vehicles with cleared payments are allowed to exit
+4. proximity sensing: sensors at entry and exit detect approaching vehicles
+5. automated gate operation:
+	 . entry: when proximity detection and license plate registration are successful
+	 . exit: when proximity detection, plate recognition and payment verification are successful
+6. alert system: any manual gate tampering triggers an alarm and logs the incident, including the license plate, timestamp and gate location (entry / exit)
+7. basic dashboard: displays real time logs of vehicle entries, exits, payments and unauthorized exit attempts for monitoring
+
+Tasks:
+1. create a data flow diagram (DFD) for the vehicle check-in assistance subsystem
+2. develop a 3D model to visually demonstrate the parts of automated gate while mounted all together (done)
+3. use a sensor to detect approaching vehicles and trigger the outward-facing camera (done)
+4. implement OCR to extract the vehicle's license plate number (done)
+5. register the extracted license plate number in the database
+6. upon successful registration, trigger the gate opening to allow entry (done)
+7. use PoS device to top up the RFID cards (done)
+8. use PoS to load sufficient balance onto an RFID card for demonstration (done)
+9. process RFID-based payments referencing parking logs to determine the duration of stay and calculate the required fee
+10. use sensor to detect an approaching vehicle and activate inward facing camera (done)
+11. implement LPR to identify the vehicle's license plate (done)
+12. check if the vehicle has cleared its parking fees (done)
+13. if verification is successful, trigger the automatic gate opening to allow exit (done)
+14. detection for when a vehicle with pending payment has crossed the gate
+15. trigger a siren or buzzer to alert security personnel
+16. record the incident in the database for future reference
+17. display vehicle check-ins, check-outs, payments, and alerts on the dashboard
+18. develop a simple web-based interface
+19. fetch relevant data from the parking logs and database
+20. highlight unauthorized exit attempts with timestamps and plate numbers
+
+Instructions:
+1. hardware requirements: done
+2. software requirements:
+	 . programming languages - python, C/C++, HTML, CSS, Javascript, SQL
+	 . testing & development tool - postman, cURL
